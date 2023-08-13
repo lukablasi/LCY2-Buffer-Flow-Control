@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         LCY2 Buffer Flow Control
+// @name         Buffer Flow Control
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  LCY2 buffer flow control
+// @description  Required for IB buffer calculator
 // @author       Lukasz Milcz - milcz@amazon.com
 // @match        https://inbound-flow-control.amazon.com/buffer
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=amazon.com
@@ -354,9 +354,9 @@ const requiredBufferP4 = document.createElement('div')
 p2Container.appendChild(requiredBufferP2)
 p3Container.appendChild(requiredBufferP3)
 p4Container.appendChild(requiredBufferP4)
-requiredBufferP2.innerHTML = 'Required Buffer: ' + Math.floor((p2headcount * p2rate * 2.5)).toLocaleString()
-requiredBufferP3.innerHTML = 'Required Buffer: ' + Math.floor((p3headcount * p3rate * 2.5)).toLocaleString()
-requiredBufferP4.innerHTML = 'Required Buffer: ' + Math.floor((p4headcount * p4rate * 2.5)).toLocaleString()
+requiredBufferP2.innerHTML = 'Required Buffer: ' + Math.floor((p2headcount * p2rate * 2)).toLocaleString()
+requiredBufferP3.innerHTML = 'Required Buffer: ' + Math.floor((p3headcount * p3rate * 2)).toLocaleString()
+requiredBufferP4.innerHTML = 'Required Buffer: ' + Math.floor((p4headcount * p4rate * 2)).toLocaleString()
 
 const deltaP2 = document.createElement('div')
 const deltaP3 = document.createElement('div')
@@ -364,9 +364,9 @@ const deltaP4 = document.createElement('div')
 p2Container.appendChild(deltaP2)
 p3Container.appendChild(deltaP3)
 p4Container.appendChild(deltaP4)
-deltaP2.innerHTML = 'Delta: ' + Math.floor((bufferP2[0].data['unit-count'] - (p2headcount * p2rate * 2.5))).toLocaleString()
-deltaP3.innerHTML = 'Delta: ' + Math.floor((bufferP3[0].data['unit-count'] - (p3headcount * p3rate * 2.5))).toLocaleString()
-deltaP4.innerHTML = 'Delta: ' + Math.floor((bufferP4[0].data['unit-count'] - (p4headcount * p4rate * 2.5))).toLocaleString()
+deltaP2.innerHTML = 'Delta: ' + Math.floor((bufferP2[0].data['unit-count'] - (p2headcount * p2rate * 2))).toLocaleString()
+deltaP3.innerHTML = 'Delta: ' + Math.floor((bufferP3[0].data['unit-count'] - (p3headcount * p3rate * 2))).toLocaleString()
+deltaP4.innerHTML = 'Delta: ' + Math.floor((bufferP4[0].data['unit-count'] - (p4headcount * p4rate * 2))).toLocaleString()
 
 const decantRateEl = document.createElement('div')
 document.getElementsByTagName('body')[0].appendChild(decantRateEl)
