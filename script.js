@@ -332,19 +332,27 @@ const prdMixP4qs = document.createElement('div')
 //////////////////
 
 //set document title and favicon
-document.title = 'Inbound Buffer Control'
+document.title = 'Inbound Flow Control... on steroids!'
 let flav = document.createElement('link');
 flav.rel = 'icon';
 document.head.appendChild(flav);
 flav.href = 'https://m.media-amazon.com/images/I/51iG0M0wqtL._AC_UF894,1000_QL80_.jpg'
 
 //create main window
-document.getElementsByTagName('body')[0].style.fontFamily = 'Gill Sans, sans-serif'
+document.getElementsByTagName('body')[0].style.fontFamily = 'Verdana, sans-serif'
 document.getElementsByTagName('p')[0].style.display = 'none'
+document.getElementsByTagName('h1')[0].style.display = 'none'
+document.getElementsByTagName('body')[0].style.backgroundColor = '#FAFAFA'
 
 //create title
-const title = document.getElementsByTagName('h1')[0]
-title.innerHTML = 'Inbound Buffer Control'
+const title = document.createElement('div')
+const titleH1 = document.createElement('div')
+const titleH2 = document.createElement('div')
+document.getElementsByTagName('body')[0].appendChild(title)
+title.appendChild(titleH1)
+title.appendChild(titleH2)
+titleH1.innerHTML = 'Inbound Flow Control'
+titleH2.innerHTML = '...on steroids!'
 title.style.textAlign = 'center'
 title.style.backgroundColor = '#f5f5f5'
 title.style.padding = '0.5em'
@@ -352,6 +360,12 @@ title.style.border = '1px solid black'
 title.style.borderRadius = '15px'
 title.style.maxWidth = '1200px'
 title.style.margin = 'auto'
+titleH1.style.fontSize = '2.5em'
+titleH1.style.fontWeight = 'bold'
+titleH2.style.marginLeft = '30%'
+titleH2.style.fontStyle = 'italic'
+titleH2.style.fontFamily = 'Bradley Hand, cursive'
+titleH2.style.color = '#FF0000'
 
 //create loading element
 const loadingElement = document.createElement('h2')
@@ -359,6 +373,7 @@ document.getElementsByTagName('body')[0].appendChild(loadingElement)
 loadingElement.innerHTML = 'Loading data...'
 loadingElement.style.margin = '40vh auto'
 loadingElement.style.textAlign = 'center'
+loadingElement.style.fontWeight = 'normal'
 
 
 createTable()
@@ -379,12 +394,27 @@ async function createTable() {
     //create container for 3 floors
     const container = document.createElement('div')
     document.getElementsByTagName('body')[0].appendChild(container)
-    container.style.display = 'grid'
-    container.style.gridTemplateColumns = '1fr 1fr 1fr 1fr'
+    //container.style.display = 'grid'
+    //container.style.gridTemplateColumns = '1fr 1fr 1fr 1fr'
     container.style.backgroundColor = '#f5f5f5'
     container.style.maxWidth = '1000px'
     container.style.minWidth = '900px'
     container.style.margin = '15px auto'
+
+    //create capacity table
+    const capacityTable = document.createElement('table')
+    container.appendChild(capacityTable)
+    capacityTable.style.width = '100%'
+    const tableHeaders = ['', 'P2', 'P3', 'P4']
+    for (let header of tableHeaders) {
+        const tableHeaderElement = document.createElement('th')
+        capacityTable.appendChild(tableHeaderElement)
+        tableHeaderElement.innerHTML = header
+        tableHeaderElement.style.border = '1px solid #C1C1C1'
+        tableHeaderElement.style.borderCollapse = 'collapse'
+        tableHeaderElement.style.width = '25%'
+
+    }
 
     //create metrics titles
     const emptyBlock = document.createElement('h3')
@@ -621,4 +651,3 @@ function highlightBufferAtRisk({p2buffer, p3buffer, p4buffer, p2bufferPlus, p3bu
         currentBufferP4.style.backgroundColor = 'green'
     }
 }
-
