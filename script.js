@@ -4,9 +4,13 @@
 // @version      1.0
 // @description  Required for IB buffer calculator
 // @author       Lukasz Milcz - milcz@amazon.com
-// @match        https://inbound-flow-control.amazon.com/buffer
+// @match        https://inbound-flow-control.amazon.com/powerup
 // @icon         https://m.media-amazon.com/images/I/51iG0M0wqtL._AC_UF894,1000_QL80_.jpg
 // @grant        GM.xmlHttpRequest
+// @require      https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js
+// @resource     CHART_JS_CSS https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css
+// @grant        GM_addStyle
+// @grant        GM_getResourceText
 // ==/UserScript==
 
 ///////////GLOBAL SETTINGS
@@ -292,42 +296,92 @@ async function getPPRdataETI() {
   }
 //const pprData = await getPPRdata()
 
+//get assigned product mix data
+async function getAssignedProductMix() {
+    const url = 'https://monitorportal.amazon.com/mws/data?Action=GetGraph&Version=2007-07-07&SchemaName1=Search&Pattern1=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&Period1=OneHour&Stat1=sum&SchemaName2=Search&Pattern2=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName3=Search&Pattern3=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName4=Search&Pattern4=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName5=Search&Pattern5=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName6=Search&Pattern6=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName7=Search&Pattern7=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName8=Search&Pattern8=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName9=Search&Pattern9=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName10=Search&Pattern10=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName11=Search&Pattern11=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName12=Search&Pattern12=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName13=Search&Pattern13=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName14=Search&Pattern14=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName15=Search&Pattern15=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName16=Search&Pattern16=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName17=Search&Pattern17=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName18=Search&Pattern18=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&HeightInPixels=773&WidthInPixels=1718&GraphTitle=Product+mix+assigned+per+floor&LegendPlacement=right&DecoratePoints=true&TZ=Europe%2FLondon%40TZ%3A+London&ShowLegendErrors=false&LabelLeft=Quantity&StartTime1=-PT2H&EndTime1=-PT0H&FunctionExpression1=SUM%28S7%2CS8%29%2FSUM%28S1%29&FunctionLabel1=A02+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference1=left&FunctionExpression2=SUM%28S9%2CS10%29%2FSUM%28S2%29&FunctionLabel2=A03+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference2=left&FunctionExpression3=SUM%28S11%2CS12%29%2FSUM%28S3%29&FunctionLabel3=A04+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference3=left&FunctionExpression4=SUM%28S13%2CS14%29%2FSUM%28S4%29&FunctionLabel4=B02+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference4=left&FunctionExpression5=SUM%28S15%2CS16%29%2FSUM%28S5%29&FunctionLabel5=B03+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference5=left&FunctionExpression6=SUM%28S17%2CS18%29%2FSUM%28S6%29&FunctionLabel6=B04+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference6=left'
+    const response = await new Promise((resolve, reject) => {
+      GM.xmlHttpRequest({
+        method: "GET",
+        responseType: "json",
+        url: url,
+
+        onload: (response) => {
+          resolve(response.responseText);
+        },
+      });
+    });
+    return response
+  }
+
+//get units stowed
+async function getUnitsStowed() {
+    const url = 'https://roboscout.amazon.com/view_plot_data/?sites=(LCY2)&current_day=true&startDateTime=today&endDateTime=today&mom_ids=632&osm_ids=30&oxm_ids=1745&ofm_ids=775&viz=nvd3Table&extend_datetime_to_shift_start=true&instance_id=1927&object_id=19851&BrowserTZ=Europe%2FLondon&app_name=RoboScout'
+    const response = await new Promise((resolve, reject) => {
+      GM.xmlHttpRequest({
+        method: "GET",
+        responseType: "json",
+        url: url,
+
+        onload: (response) => {
+          resolve(response.response.data);
+        },
+      });
+    });
+    return response
+  }
+
 /////////////////////
 //////////////////// GLOBAL VARIABLES
-const currentHeadcountP2 = document.createElement('div')
-const currentHeadcountP3 = document.createElement('div')
-const currentHeadcountP4 = document.createElement('div')
 let p2headcount = ''
 let p3headcount = ''
 let p4headcount = ''
-const currentStowRateP2 = document.createElement('div')
-const currentStowRateP3 = document.createElement('div')
-const currentStowRateP4 = document.createElement('div')
 let p2rate = ''
 let p3rate = ''
 let p4rate = ''
-const currentBufferP2 = document.createElement('div')
-const currentBufferP3 = document.createElement('div')
-const currentBufferP4 = document.createElement('div')
-const currentBufferP2plus = document.createElement('div')
-const currentBufferP3plus = document.createElement('div')
-const currentBufferP4plus = document.createElement('div')
-const currentBufferP2minus = document.createElement('div')
-const currentBufferP3minus = document.createElement('div')
-const currentBufferP4minus = document.createElement('div')
-const deltaP2 = document.createElement('div')
-const deltaP3 = document.createElement('div')
-const deltaP4 = document.createElement('div')
-const binFullnessP2 = document.createElement('div')
-const binFullnessP3 = document.createElement('div')
-const binFullnessP4 = document.createElement('div')
-const prdMixP2noqs = document.createElement('div')
-const prdMixP3noqs = document.createElement('div')
-const prdMixP4noqs = document.createElement('div')
-const prdMixP2qs = document.createElement('div')
-const prdMixP3qs = document.createElement('div')
-const prdMixP4qs = document.createElement('div')
-
+let p2consumption = ''
+let p3consumption = ''
+let p4consumption = ''
+let p2bufferplus = ''
+let p3bufferplus = ''
+let p4bufferplus = ''
+let p2bufferminus = ''
+let p3bufferminus = ''
+let p4bufferminus = ''
+let p2buffer = ''
+let p3buffer = ''
+let p4buffer = ''
+let p2delta = ''
+let p3delta = ''
+let p4delta = ''
+let p2headcountA = ''
+let p2headcountB = ''
+let p3headcountA = ''
+let p3headcountB = ''
+let p4headcountA = ''
+let p4headcountB = ''
+let p2ratesA = ''
+let p2ratesB = ''
+let p3ratesA = ''
+let p3ratesB = ''
+let p4ratesA = ''
+let p4ratesB = ''
+let p2prodmixA = ''
+let p2prodmixB = ''
+let p3prodmixA = ''
+let p3prodmixB = ''
+let p4prodmixA = ''
+let p4prodmixB = ''
+let p2fullnessA = ''
+let p2fullnessB = ''
+let p3fullnessA = ''
+let p3fullnessB = ''
+let p4fullnessA = ''
+let p4fullnessB = ''
+let totalConsumption = ''
+let totalBuffer = ''
+let bufferInHours = ''
+let totalInjection = ''
+let totalDelta = ''
 ///////////////////
 //////////////////
 
@@ -387,15 +441,71 @@ async function createTable() {
     let bufferP2 = await getBufferP2()
     let bufferP3 = await getBufferP3()
     let bufferP4 = await getBufferP4()
-    let pprDataETI = await getPPRdataETI()
+    let assignedProductMixRequest = await getAssignedProductMix()
     let binFullness = await getBinFullness()
+    let unitsStowed = await getUnitsStowed()
 
+    //do calculations
+    p2headcount = Number(currentHeadcount[7].yValue) + Number(currentHeadcount[58].yValue)
+    p3headcount = Number(currentHeadcount[24].yValue) + Number(currentHeadcount[75].yValue)
+    p4headcount = Number(currentHeadcount[41].yValue) + Number(currentHeadcount[92].yValue)
+    p2rate = Math.round(((Math.round(stowRatesRaw[1].yValue) * Math.round(workedHours[1].yValue)) + (Math.round(stowRatesRaw[7].yValue) * Math.round(workedHours[7].yValue))) / (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)))
+    p3rate = Math.round(((Math.round(stowRatesRaw[3].yValue) * Math.round(workedHours[3].yValue)) + (Math.round(stowRatesRaw[9].yValue) * Math.round(workedHours[9].yValue))) / (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)))
+    p4rate = Math.round(((Math.round(stowRatesRaw[5].yValue) * Math.round(workedHours[5].yValue)) + (Math.round(stowRatesRaw[11].yValue) * Math.round(workedHours[11].yValue))) / (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))
+    p2consumption = p2headcount * p2rate
+    p3consumption = p3headcount * p3rate
+    p4consumption = p4headcount * p4rate
+    p2bufferplus = Math.round((p2headcount * p2rate * bufferExpInHours) + (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p3bufferplus = Math.round((p3headcount * p3rate * bufferExpInHours) + (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p4bufferplus = Math.round((p4headcount * p4rate * bufferExpInHours) + (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p2bufferminus = Math.round((p2headcount * p2rate * bufferExpInHours) - (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p3bufferminus = Math.round((p3headcount * p3rate * bufferExpInHours) - (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p4bufferminus = Math.round((p4headcount * p4rate * bufferExpInHours) - (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p2buffer = bufferP2[0].data['unit-count'].toLocaleString()
+    p3buffer = bufferP3[0].data['unit-count'].toLocaleString()
+    p4buffer = bufferP4[0].data['unit-count'].toLocaleString()
+    p2delta = Math.floor((bufferP2[0].data['unit-count'] - (p2headcount * p2rate * bufferExpInHours))).toLocaleString()
+    p3delta = Math.floor((bufferP3[0].data['unit-count'] - (p3headcount * p3rate * bufferExpInHours))).toLocaleString()
+    p4delta = Math.floor((bufferP4[0].data['unit-count'] - (p4headcount * p4rate * bufferExpInHours))).toLocaleString()
+    p2headcountA = Number(currentHeadcount[7].yValue)
+    p2headcountB = Number(currentHeadcount[58].yValue)
+    p3headcountA = Number(currentHeadcount[24].yValue)
+    p3headcountB = Number(currentHeadcount[75].yValue)
+    p4headcountA = Number(currentHeadcount[41].yValue)
+    p4headcountB = Number(currentHeadcount[92].yValue)
+    p2ratesA = Math.round(stowRatesRaw[1].yValue)
+    p2ratesB = Math.round(stowRatesRaw[7].yValue)
+    p3ratesA = Math.round(stowRatesRaw[3].yValue)
+    p3ratesB = Math.round(stowRatesRaw[9].yValue)
+    p4ratesA = Math.round(stowRatesRaw[5].yValue)
+    p4ratesB = Math.round(stowRatesRaw[11].yValue)
+
+    const assignedProductMixData = document.createElement('html')
+    assignedProductMixData.innerHTML = assignedProductMixRequest
+    p2prodmixA = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[1].children[2].innerHTML) * 100)
+    p2prodmixB = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[4].children[2].innerHTML) * 100)
+    p3prodmixA = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[2].children[2].innerHTML) * 100)
+    p3prodmixB = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[5].children[2].innerHTML) * 100)
+    p4prodmixA = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[3].children[2].innerHTML) * 100)
+    p4prodmixB = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[6].children[2].innerHTML) * 100)
+
+    p2fullnessA = Math.round(binFullness[1].yValue)
+    p2fullnessB = Math.round(binFullness[7].yValue)
+    p3fullnessA = Math.round(binFullness[3].yValue)
+    p3fullnessB = Math.round(binFullness[9].yValue)
+    p4fullnessA = Math.round(binFullness[5].yValue)
+    p4fullnessB = Math.round(binFullness[11].yValue)
+
+    totalConsumption = p2consumption + p3consumption + p4consumption
+    totalBuffer = bufferP2[0].data['unit-count'] + bufferP3[0].data['unit-count'] + bufferP4[0].data['unit-count']
+    bufferInHours = Math.round((totalBuffer / totalConsumption) * 10) / 10
+    totalInjection = totalConsumption + (((bufferP2[0].data['unit-count'] - bufferP2[6].data['unit-count']) + (bufferP3[0].data['unit-count'] - bufferP3[6].data['unit-count']) + (bufferP4[0].data['unit-count'] - bufferP4[6].data['unit-count'])) * 2)
+    totalDelta = totalInjection - totalConsumption
+
+    //create main container
     loadingElement.style.display = 'none'
-    //create container for 3 floors
     const container = document.createElement('div')
     document.getElementsByTagName('body')[0].appendChild(container)
-    //container.style.display = 'grid'
-    //container.style.gridTemplateColumns = '1fr 1fr 1fr 1fr'
     container.style.backgroundColor = '#f5f5f5'
     container.style.maxWidth = '1000px'
     container.style.minWidth = '900px'
@@ -413,158 +523,145 @@ async function createTable() {
         tableHeaderElement.style.border = '1px solid #C1C1C1'
         tableHeaderElement.style.borderCollapse = 'collapse'
         tableHeaderElement.style.width = '25%'
+        tableHeaderElement.style.backgroundColor = '#C1C1C1'
+        tableHeaderElement.style.color = 'white'
 
     }
-
-    //create metrics titles
-    const emptyBlock = document.createElement('h3')
-    emptyBlock.innerHTML = 'Metric'
-    const metricsContainer = document.createElement('div')
-    metricsContainer.appendChild(emptyBlock)
-    container.appendChild(metricsContainer)
-    metricsContainer.style.display = 'flex'
-    metricsContainer.style.flexDirection = 'column'
-    const metrics = ['Headcount', 'Rate', 'Current Buffer', '2,5 Hours Buffer + 20%', '2,5 Hours Buffer - 20%', 'Buffer Delta (2,5 hours)', 'Bin Fullness', 'Smalls Last 2 Hours No QS', 'Smalls Last 2 Hours With QS']
-    for (let metric of metrics) {
-        const metricElement = document.createElement('div')
-        metricsContainer.appendChild(metricElement)
-        metricElement.innerHTML = metric
-        metricElement.style.borderBottom = '1px solid black'
-        metricElement.style.padding = '5px'
+    const metricsGeneral = [{metric: 'Headcount', id: 'headcount', p2: p2headcount, p3: p3headcount, p4: p4headcount}, {metric: 'Rates', id: 'rates', p2: p2rate, p3: p3rate, p4: p4rate}, {metric: 'Hourly Consumption', id: 'consumption', p2: p2consumption.toLocaleString(), p3: p3consumption.toLocaleString(), p4: p4consumption.toLocaleString()}]
+    for (let metric of metricsGeneral) {
+        const metricRow = document.createElement('tr')
+        capacityTable.appendChild(metricRow)
+        metricRow.innerHTML = `<td class="metric">${metric.metric}</td><td id="p2${metric.id}" class="table-data">${metric.p2}</td><td id="p3${metric.id}" class="table-data">${metric.p3}</td><td id="p4${metric.id}" class="table-data">${metric.p4}</td>`
     }
 
-    //create 3 smaller containers for each floor
-    const p2Container = document.createElement('div')
-    container.appendChild(p2Container)
-    const p2Title = document.createElement('h3')
-    p2Title.innerHTML = 'P2'
-    p2Container.appendChild(p2Title)
-
-    const p3Container = document.createElement('div')
-    container.appendChild(p3Container)
-    const p3Title = document.createElement('h3')
-    p3Title.innerHTML = 'P3'
-    p3Container.appendChild(p3Title)
-
-    const p4Container = document.createElement('div')
-    container.appendChild(p4Container)
-    const p4Title = document.createElement('h3')
-    p4Title.innerHTML = 'P4'
-    p4Container.appendChild(p4Title)
-
-    p2Container.appendChild(currentHeadcountP2)
-    p3Container.appendChild(currentHeadcountP3)
-    p4Container.appendChild(currentHeadcountP4)
-    p2headcount = Number(currentHeadcount[7].yValue) + Number(currentHeadcount[58].yValue)
-    p3headcount = Number(currentHeadcount[24].yValue) + Number(currentHeadcount[75].yValue)
-    p4headcount = Number(currentHeadcount[41].yValue) + Number(currentHeadcount[92].yValue)
-    currentHeadcountP2.innerHTML = p2headcount
-    currentHeadcountP3.innerHTML = p3headcount
-    currentHeadcountP4.innerHTML = p4headcount
-    p2rate = Math.round(((Math.round(stowRatesRaw[1].yValue) * Math.round(workedHours[1].yValue)) + (Math.round(stowRatesRaw[7].yValue) * Math.round(workedHours[7].yValue))) / (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)))
-    p3rate = Math.round(((Math.round(stowRatesRaw[3].yValue) * Math.round(workedHours[3].yValue)) + (Math.round(stowRatesRaw[9].yValue) * Math.round(workedHours[9].yValue))) / (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)))
-    p4rate = Math.round(((Math.round(stowRatesRaw[5].yValue) * Math.round(workedHours[5].yValue)) + (Math.round(stowRatesRaw[11].yValue) * Math.round(workedHours[11].yValue))) / (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))
-    p2Container.appendChild(currentStowRateP2)
-    p3Container.appendChild(currentStowRateP3)
-    p4Container.appendChild(currentStowRateP4)
-    currentStowRateP2.innerHTML = p2rate
-    currentStowRateP3.innerHTML = p3rate
-    currentStowRateP4.innerHTML = p4rate
-    p2Container.appendChild(currentBufferP2)
-    p3Container.appendChild(currentBufferP3)
-    p4Container.appendChild(currentBufferP4)
-    currentBufferP2.innerHTML = bufferP2[0].data['unit-count'].toLocaleString()
-    currentBufferP3.innerHTML = bufferP3[0].data['unit-count'].toLocaleString()
-    currentBufferP4.innerHTML = bufferP4[0].data['unit-count'].toLocaleString()
-    p2Container.appendChild(currentBufferP2plus)
-    p3Container.appendChild(currentBufferP3plus)
-    p4Container.appendChild(currentBufferP4plus)
-    currentBufferP2plus.innerHTML = Math.round((p2headcount * p2rate * bufferExpInHours) + (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
-    currentBufferP3plus.innerHTML = Math.round((p3headcount * p3rate * bufferExpInHours) + (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
-    currentBufferP4plus.innerHTML = Math.round((p4headcount * p4rate * bufferExpInHours) + (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
-    p2Container.appendChild(currentBufferP2minus)
-    p3Container.appendChild(currentBufferP3minus)
-    p4Container.appendChild(currentBufferP4minus)
-    currentBufferP2minus.innerHTML = Math.round((p2headcount * p2rate * bufferExpInHours) - (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
-    currentBufferP3minus.innerHTML = Math.round((p3headcount * p3rate * bufferExpInHours) - (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
-    currentBufferP4minus.innerHTML = Math.round((p4headcount * p4rate * bufferExpInHours) - (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
-    p2Container.appendChild(deltaP2)
-    p3Container.appendChild(deltaP3)
-    p4Container.appendChild(deltaP4)
-    deltaP2.innerHTML = Math.floor((bufferP2[0].data['unit-count'] - (p2headcount * p2rate * bufferExpInHours))).toLocaleString()
-    deltaP3.innerHTML = Math.floor((bufferP3[0].data['unit-count'] - (p3headcount * p3rate * bufferExpInHours))).toLocaleString()
-    deltaP4.innerHTML = Math.floor((bufferP4[0].data['unit-count'] - (p4headcount * p4rate * bufferExpInHours))).toLocaleString()
-    p2Container.appendChild(binFullnessP2)
-    p3Container.appendChild(binFullnessP3)
-    p4Container.appendChild(binFullnessP4)
-    binFullnessP2.innerHTML = 'A2:' + Math.round(binFullness[1].yValue) + '% B2:' + Math.round(binFullness[7].yValue) + '%'
-    binFullnessP3.innerHTML = 'A3:' + Math.round(binFullness[3].yValue) + '% B3:' + Math.round(binFullness[9].yValue) + '%'
-    binFullnessP4.innerHTML = 'A4:' + Math.round(binFullness[5].yValue) + '% B4:' + Math.round(binFullness[11].yValue) + '%'
-    p2Container.appendChild(prdMixP2noqs)
-    p3Container.appendChild(prdMixP3noqs)
-    p4Container.appendChild(prdMixP4noqs)
-    p2Container.appendChild(prdMixP2qs)
-    p3Container.appendChild(prdMixP3qs)
-    p4Container.appendChild(prdMixP4qs)
-
-    const pprETI = document.createElement('html')
-    pprETI.innerHTML = pprDataETI
-    const etiSmallNike = pprETI.querySelector('#summary').children[2].children[0].children[5].innerHTML
-    const etiTotalNike = pprETI.querySelector('#summary').children[2].children[4].children[4].innerHTML
-    const etiSmallTotal = (Number(pprETI.querySelector('#summary').children[2].children[5].children[5].innerHTML) + Number(pprETI.querySelector('#summary').children[2].children[0].children[5].innerHTML))
-    const etiTotal = pprETI.querySelector('#summary').children[3].children[0].children[4].innerHTML
-
-    prdMixP2noqs.innerHTML = Math.round(Number(etiSmallNike) * 100 / Number(etiTotalNike)) + '%'
-    prdMixP3noqs.innerHTML = Math.round(Number(etiSmallNike) * 100 / Number(etiTotalNike)) + '%'
-    prdMixP4noqs.innerHTML = Math.round(Number(etiSmallNike) * 100 / Number(etiTotalNike)) + '%'
-    prdMixP2qs.innerHTML = Math.round(etiSmallTotal * 100 / Number(etiTotal)) + '%'
-    prdMixP3qs.innerHTML = Math.round(etiSmallTotal * 100 / Number(etiTotal)) + '%'
-    prdMixP4qs.innerHTML = Math.round(etiSmallTotal * 100 / Number(etiTotal)) + '%'
-
-    //add clases
-    currentHeadcountP2.classList.add('dataCell')
-    currentHeadcountP3.classList.add('dataCell')
-    currentHeadcountP4.classList.add('dataCell')
-    currentStowRateP2.classList.add('dataCell')
-    currentStowRateP3.classList.add('dataCell')
-    currentStowRateP4.classList.add('dataCell')
-    currentBufferP2.classList.add('dataCell')
-    currentBufferP3.classList.add('dataCell')
-    currentBufferP4.classList.add('dataCell')
-    currentBufferP2plus.classList.add('dataCell')
-    currentBufferP3plus.classList.add('dataCell')
-    currentBufferP4plus.classList.add('dataCell')
-    currentBufferP2minus.classList.add('dataCell')
-    currentBufferP3minus.classList.add('dataCell')
-    currentBufferP4minus.classList.add('dataCell')
-    deltaP2.classList.add('dataCell')
-    deltaP3.classList.add('dataCell')
-    deltaP4.classList.add('dataCell')
-    binFullnessP2.classList.add('dataCell')
-    binFullnessP3.classList.add('dataCell')
-    binFullnessP4.classList.add('dataCell')
-    prdMixP2noqs.classList.add('dataCell')
-    prdMixP3noqs.classList.add('dataCell')
-    prdMixP4noqs.classList.add('dataCell')
-    prdMixP2qs.classList.add('dataCell')
-    prdMixP3qs.classList.add('dataCell')
-    prdMixP4qs.classList.add('dataCell')
-
-    const allHeaders = document.getElementsByTagName('h3')
-    for (let i = 1; i < allHeaders.length; i++) {
-        allHeaders[i].style.textAlign = 'right'
+    //create buffer table
+    const bufferTable = document.createElement('table')
+    container.appendChild(bufferTable)
+    bufferTable.style.width = '100%'
+    bufferTable.style.marginTop = '3em'
+    for (let header of tableHeaders) {
+        const tableHeaderElement = document.createElement('th')
+        bufferTable.appendChild(tableHeaderElement)
+        tableHeaderElement.innerHTML = header
+        tableHeaderElement.style.border = '1px solid #C1C1C1'
+        tableHeaderElement.style.borderCollapse = 'collapse'
+        tableHeaderElement.style.width = '25%'
+        tableHeaderElement.style.backgroundColor = '#C1C1C1'
+        tableHeaderElement.style.color = 'white'
     }
-    for (let header of allHeaders) {
-        header.style.borderBottom = '1px solid black'
-        header.style.padding = '5px'
-        header.style.marginBottom = '0px'
+    const metricsBuffer = [{metric: '2,5 Hours Buffer +20%', id: 'bufferplus', p2: p2bufferplus, p3: p3bufferplus, p4: p4bufferplus}, {metric: '2,5 Hours Buffer -20%', id: 'bufferminus', p2: p2bufferminus, p3: p3bufferminus, p4: p4bufferminus}, {metric: 'Current Buffer', id: 'buffer', p2: p2buffer, p3: p3buffer, p4: p4buffer}, {metric: 'Delta', id: 'delta', p2: p2delta, p3: p3delta, p4: p4delta}]
+    for (let metric of metricsBuffer) {
+        const metricRow = document.createElement('tr')
+        bufferTable.appendChild(metricRow)
+        metricRow.innerHTML = `<td class="metric">${metric.metric}</td><td id="p2${metric.id}" class="table-data">${metric.p2}</td><td id="p3${metric.id}" class="table-data">${metric.p3}</td><td id="p4${metric.id}" class="table-data">${metric.p4}</td>`
     }
-    const dataCells = document.getElementsByClassName('dataCell')
+
+    //create other metrics table
+    const otherMetricsTable = document.createElement('table')
+    container.appendChild(otherMetricsTable)
+    otherMetricsTable.style.width = '100%'
+    otherMetricsTable.style.marginTop = '3em'
+    const othersTableHeaders = ['', 'P2A', 'P2B', 'P3A', 'P3B', 'P4A', 'P4B']
+    for (let header of othersTableHeaders) {
+        const tableHeaderElement = document.createElement('th')
+        otherMetricsTable.appendChild(tableHeaderElement)
+        tableHeaderElement.innerHTML = header
+        tableHeaderElement.style.border = '1px solid #C1C1C1'
+        tableHeaderElement.style.borderCollapse = 'collapse'
+        tableHeaderElement.style.backgroundColor = '#C1C1C1'
+        tableHeaderElement.style.color = 'white'
+        if (header == othersTableHeaders[0]) {
+            tableHeaderElement.colSpan = 2
+            tableHeaderElement.style.width = '25%'
+        }
+    }
+    const otherMetrics = [{metric: 'Headcount', id: 'headcount', p2A: p2headcountA, p2B: p2headcountB, p3A: p3headcountA, p3B: p3headcountB, p4A: p4headcountA, p4B: p4headcountB},
+                         {metric: 'Rates', id: 'rates', p2A: p2ratesA, p2B: p2ratesB, p3A: p3ratesA, p3B: p3ratesB, p4A: p4ratesA, p4B: p4ratesB},
+                         {metric: 'Product Mix - Smalls', id: 'productmix', p2A:`${p2prodmixA}%`, p2B:`${p2prodmixB}%`, p3A: `${p3prodmixA}%`, p3B:`${p3prodmixB}%`, p4A:`${p4prodmixA}%`, p4B:`${p4prodmixB}%`},
+                         {metric: 'Bin Fullness', id: 'binfullness', p2A:`${p2fullnessA}%`, p2B:`${p2fullnessB}%`, p3A: `${p3fullnessA}%`, p3B:`${p3fullnessB}%`, p4A:`${p4fullnessA}%`, p4B:`${p4fullnessB}%`}]
+    for (let metric of otherMetrics) {
+        const metricRow = document.createElement('tr')
+        otherMetricsTable.appendChild(metricRow)
+        metricRow.innerHTML = `<td colspan='2' class="metric">${metric.metric}</td><td id="p2A${metric.id}" class="table-data">${metric.p2A}</td><td id="p2B${metric.id}" class="table-data">${metric.p2B}</td><td id="p3A${metric.id}" class="table-data">${metric.p3A}</td><td id="p3B${metric.id}" class="table-data">${metric.p3B}</td><td id="p4A${metric.id}" class="table-data">${metric.p4A}</td><td id="p4B${metric.id}" class="table-data">${metric.p4B}</td>`
+    }
+
+    //create totals table
+    const totalsTable = document.createElement('table')
+    container.appendChild(totalsTable)
+    totalsTable.style.width = '100%'
+    totalsTable.style.marginTop = '3em'
+    const totalsTableHeaders = ['Consumption', 'Total Buffer', 'Buffer In Hours', 'Hourly Injection', 'Total Delta' ]
+    for (let header of totalsTableHeaders) {
+        const tableHeaderElement = document.createElement('th')
+        totalsTable.appendChild(tableHeaderElement)
+        tableHeaderElement.innerHTML = header
+        tableHeaderElement.style.border = '1px solid #C1C1C1'
+        tableHeaderElement.style.borderCollapse = 'collapse'
+        tableHeaderElement.style.width = '20%'
+        tableHeaderElement.style.backgroundColor = '#C1C1C1'
+        tableHeaderElement.style.color = 'white'
+        tableHeaderElement.style.verticalAlign = 'middle'
+        tableHeaderElement.style.padding = '2px'
+    }
+    const totalsTableRow = document.createElement('tr')
+    totalsTable.appendChild(totalsTableRow)
+    totalsTableRow.innerHTML = `<td id="total-consumption" class="table-data">${totalConsumption.toLocaleString()}</td><td id="total-buffer" class="table-data">${totalBuffer.toLocaleString()}</td><td id="buffer-in-hours" class="table-data">${bufferInHours}</td><td id="total-injection" class="table-data">${totalInjection.toLocaleString()}</td><td id="total-delta" class="table-data">${totalDelta.toLocaleString()}</td>`
+
+
+    const metricsClass = document.getElementsByClassName('metric')
+    for (let metric of metricsClass) {
+        metric.style.border = '1px solid #C1C1C1'
+        metric.style.borderCollapse = 'collapse'
+        metric.style.color = '#1a1a1a'
+        metric.style.fontWeight = '500'
+    }
+    const dataCells = document.getElementsByClassName('table-data')
     for (let dataCell of dataCells) {
-        dataCell.style.borderBottom = '1px solid black'
-        dataCell.style.padding = '5px'
+        dataCell.style.border = '1px solid #C1C1C1'
+        dataCell.style.borderCollapse = 'collapse'
         dataCell.style.textAlign = 'right'
+        dataCell.style.color = '#404040'
     }
+
+    const grafsContainer = document.createElement('div')
+    container.appendChild(grafsContainer)
+    grafsContainer.style.marginTop = '3em'
+    const mainGraf = document.createElement('canvas')
+    container.appendChild(mainGraf)
+    mainGraf.setAttribute('id', 'main-graf')
+
+    let bufferValues = [
+
+    ];
+    let labels = [
+    ]
+
+    for (let i = 0; i <= 100; i++) {
+        let unitCount = bufferP2[i].data['unit-count'] + bufferP3[i].data['unit-count'] + bufferP4[i].data['unit-count']
+        let date = new Date(bufferP2[i].timestamp).toLocaleTimeString()
+        labels.unshift(date)
+        bufferValues.unshift(unitCount)
+    }
+
+
+new Chart("main-graf", {
+  type: 'line',
+  data: {
+   labels: labels,
+    datasets: [{
+      pointRadius: 4,
+      pointBackgroundColor: "rgb(0,0,255)",
+      data: bufferValues
+    }]
+  },
+  options: {
+    legend: {display: false},
+    scales: {
+      yAxes: [{ticks: {min: 10000, max: 80000}}],
+    }
+  }
+});
+
     highlightBufferAtRisk({p2buffer: bufferP2[0].data['unit-count'], p3buffer: bufferP3[0].data['unit-count'], p4buffer: bufferP4[0].data['unit-count'], p2bufferPlus: Math.round((p2headcount * p2rate * bufferExpInHours) + (p2headcount * p2rate * bufferExpInHours) * 20 / 100), p3bufferPlus: Math.round((p3headcount * p3rate * bufferExpInHours) + (p3headcount * p3rate * bufferExpInHours) * 20 / 100), p4bufferPlus: Math.round((p4headcount * p4rate * bufferExpInHours) + (p4headcount * p4rate * bufferExpInHours) * 20 / 100), p2bufferMinus: Math.round((p2headcount * p2rate * bufferExpInHours) - (p2headcount * p2rate * bufferExpInHours) * 20 / 100), p3bufferMinus: Math.round((p3headcount * p3rate * bufferExpInHours) - (p3headcount * p3rate * bufferExpInHours) * 20 / 100), p4bufferMinus: Math.round((p4headcount * p4rate * bufferExpInHours) - (p4headcount * p4rate * bufferExpInHours) * 20 / 100)})
 
     refreshData()
@@ -579,75 +676,152 @@ function refreshData() {
         let bufferP2 = await getBufferP2()
         let bufferP3 = await getBufferP3()
         let bufferP4 = await getBufferP4()
-        let pprDataETI = await getPPRdataETI()
+        let assignedProductMixRequest = await getAssignedProductMix()
         let binFullness = await getBinFullness()
+        let unitsStowed = await getUnitsStowed()
 
         p2headcount = Number(currentHeadcount[7].yValue) + Number(currentHeadcount[58].yValue)
-        p3headcount = Number(currentHeadcount[24].yValue) + Number(currentHeadcount[75].yValue)
-        p4headcount = Number(currentHeadcount[41].yValue) + Number(currentHeadcount[92].yValue)
-        currentHeadcountP2.innerHTML = p2headcount
-        currentHeadcountP3.innerHTML = p3headcount
-        currentHeadcountP4.innerHTML = p4headcount
-        p2rate = Math.round(((Math.round(stowRatesRaw[1].yValue) * Math.round(workedHours[1].yValue)) + (Math.round(stowRatesRaw[7].yValue) * Math.round(workedHours[7].yValue))) / (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)))
-        p3rate = Math.round(((Math.round(stowRatesRaw[3].yValue) * Math.round(workedHours[3].yValue)) + (Math.round(stowRatesRaw[9].yValue) * Math.round(workedHours[9].yValue))) / (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)))
-        p4rate = Math.round(((Math.round(stowRatesRaw[5].yValue) * Math.round(workedHours[5].yValue)) + (Math.round(stowRatesRaw[11].yValue) * Math.round(workedHours[11].yValue))) / (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))
-        currentStowRateP2.innerHTML = p2rate
-        currentStowRateP3.innerHTML = p3rate
-        currentStowRateP4.innerHTML = p4rate
-        currentBufferP2.innerHTML = bufferP2[0].data['unit-count'].toLocaleString()
-        currentBufferP3.innerHTML = bufferP3[0].data['unit-count'].toLocaleString()
-        currentBufferP4.innerHTML = bufferP4[0].data['unit-count'].toLocaleString()
-        currentBufferP2plus.innerHTML = Math.round((p2headcount * p2rate * bufferExpInHours) + (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
-        currentBufferP3plus.innerHTML = Math.round((p3headcount * p3rate * bufferExpInHours) + (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
-        currentBufferP4plus.innerHTML = Math.round((p4headcount * p4rate * bufferExpInHours) + (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
-        currentBufferP2minus.innerHTML = Math.round((p2headcount * p2rate * bufferExpInHours) - (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
-        currentBufferP3minus.innerHTML = Math.round((p3headcount * p3rate * bufferExpInHours) - (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
-        currentBufferP4minus.innerHTML = Math.round((p4headcount * p4rate * bufferExpInHours) - (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
-        deltaP2.innerHTML = Math.floor((bufferP2[0].data['unit-count'] - (p2headcount * p2rate * bufferExpInHours))).toLocaleString()
-        deltaP3.innerHTML = Math.floor((bufferP3[0].data['unit-count'] - (p3headcount * p3rate * bufferExpInHours))).toLocaleString()
-        deltaP4.innerHTML = Math.floor((bufferP4[0].data['unit-count'] - (p4headcount * p4rate * bufferExpInHours))).toLocaleString()
-        binFullnessP2.innerHTML = 'A2:' + Math.round(binFullness[1].yValue) + '% B2:' + Math.round(binFullness[7].yValue) + '%'
-        binFullnessP3.innerHTML = 'A3:' + Math.round(binFullness[3].yValue) + '% B3:' + Math.round(binFullness[9].yValue) + '%'
-        binFullnessP4.innerHTML = 'A4:' + Math.round(binFullness[5].yValue) + '% B4:' + Math.round(binFullness[11].yValue) + '%'
+    p3headcount = Number(currentHeadcount[24].yValue) + Number(currentHeadcount[75].yValue)
+    p4headcount = Number(currentHeadcount[41].yValue) + Number(currentHeadcount[92].yValue)
+    p2rate = Math.round(((Math.round(stowRatesRaw[1].yValue) * Math.round(workedHours[1].yValue)) + (Math.round(stowRatesRaw[7].yValue) * Math.round(workedHours[7].yValue))) / (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)))
+    p3rate = Math.round(((Math.round(stowRatesRaw[3].yValue) * Math.round(workedHours[3].yValue)) + (Math.round(stowRatesRaw[9].yValue) * Math.round(workedHours[9].yValue))) / (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)))
+    p4rate = Math.round(((Math.round(stowRatesRaw[5].yValue) * Math.round(workedHours[5].yValue)) + (Math.round(stowRatesRaw[11].yValue) * Math.round(workedHours[11].yValue))) / (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))
+    p2consumption = p2headcount * p2rate
+    p3consumption = p3headcount * p3rate
+    p4consumption = p4headcount * p4rate
+    p2bufferplus = Math.round((p2headcount * p2rate * bufferExpInHours) + (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p3bufferplus = Math.round((p3headcount * p3rate * bufferExpInHours) + (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p4bufferplus = Math.round((p4headcount * p4rate * bufferExpInHours) + (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p2bufferminus = Math.round((p2headcount * p2rate * bufferExpInHours) - (p2headcount * p2rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p3bufferminus = Math.round((p3headcount * p3rate * bufferExpInHours) - (p3headcount * p3rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p4bufferminus = Math.round((p4headcount * p4rate * bufferExpInHours) - (p4headcount * p4rate * bufferExpInHours) * 20 / 100).toLocaleString()
+    p2buffer = bufferP2[0].data['unit-count'].toLocaleString()
+    p3buffer = bufferP3[0].data['unit-count'].toLocaleString()
+    p4buffer = bufferP4[0].data['unit-count'].toLocaleString()
+    p2delta = Math.floor((bufferP2[0].data['unit-count'] - (p2headcount * p2rate * bufferExpInHours))).toLocaleString()
+    p3delta = Math.floor((bufferP3[0].data['unit-count'] - (p3headcount * p3rate * bufferExpInHours))).toLocaleString()
+    p4delta = Math.floor((bufferP4[0].data['unit-count'] - (p4headcount * p4rate * bufferExpInHours))).toLocaleString()
+    p2headcountA = Number(currentHeadcount[7].yValue)
+    p2headcountB = Number(currentHeadcount[58].yValue)
+    p3headcountA = Number(currentHeadcount[24].yValue)
+    p3headcountB = Number(currentHeadcount[75].yValue)
+    p4headcountA = Number(currentHeadcount[41].yValue)
+    p4headcountB = Number(currentHeadcount[92].yValue)
+    p2ratesA = Math.round(stowRatesRaw[1].yValue)
+    p2ratesB = Math.round(stowRatesRaw[7].yValue)
+    p3ratesA = Math.round(stowRatesRaw[3].yValue)
+    p3ratesB = Math.round(stowRatesRaw[9].yValue)
+    p4ratesA = Math.round(stowRatesRaw[5].yValue)
+    p4ratesB = Math.round(stowRatesRaw[11].yValue)
 
-        const pprETI = document.createElement('html')
-        pprETI.innerHTML = pprDataETI
-        const etiSmallNike = pprETI.querySelector('#summary').children[2].children[0].children[5].innerHTML
-        const etiTotalNike = pprETI.querySelector('#summary').children[2].children[4].children[4].innerHTML
-        const etiSmallTotal = (Number(pprETI.querySelector('#summary').children[2].children[5].children[5].innerHTML) + Number(pprETI.querySelector('#summary').children[2].children[0].children[5].innerHTML))
-        const etiTotal = pprETI.querySelector('#summary').children[3].children[0].children[4].innerHTML
-        prdMixP2noqs.innerHTML = Math.round(Number(etiSmallNike) * 100 / Number(etiTotalNike)) + '%'
-        prdMixP3noqs.innerHTML = Math.round(Number(etiSmallNike) * 100 / Number(etiTotalNike)) + '%'
-        prdMixP4noqs.innerHTML = Math.round(Number(etiSmallNike) * 100 / Number(etiTotalNike)) + '%'
-        prdMixP2qs.innerHTML = Math.round(etiSmallTotal * 100 / Number(etiTotal)) + '%'
-        prdMixP3qs.innerHTML = Math.round(etiSmallTotal * 100 / Number(etiTotal)) + '%'
-        prdMixP4qs.innerHTML = Math.round(etiSmallTotal * 100 / Number(etiTotal)) + '%'
+    const assignedProductMixData = document.createElement('html')
+    assignedProductMixData.innerHTML = assignedProductMixRequest
+    p2prodmixA = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[1].children[2].innerHTML) * 100)
+    p2prodmixB = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[4].children[2].innerHTML) * 100)
+    p3prodmixA = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[2].children[2].innerHTML) * 100)
+    p3prodmixB = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[5].children[2].innerHTML) * 100)
+    p4prodmixA = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[3].children[2].innerHTML) * 100)
+    p4prodmixB = Math.round(Number(assignedProductMixData.querySelectorAll('tr')[6].children[2].innerHTML) * 100)
+
+    p2fullnessA = Math.round(binFullness[1].yValue)
+    p2fullnessB = Math.round(binFullness[7].yValue)
+    p3fullnessA = Math.round(binFullness[3].yValue)
+    p3fullnessB = Math.round(binFullness[9].yValue)
+    p4fullnessA = Math.round(binFullness[5].yValue)
+    p4fullnessB = Math.round(binFullness[11].yValue)
+
+    totalConsumption = p2consumption + p3consumption + p4consumption
+    totalBuffer = bufferP2[0].data['unit-count'] + bufferP3[0].data['unit-count'] + bufferP4[0].data['unit-count']
+    bufferInHours = Math.round((totalBuffer / totalConsumption) * 10) / 10
+    totalInjection = totalConsumption + (((bufferP2[0].data['unit-count'] - bufferP2[6].data['unit-count']) + (bufferP3[0].data['unit-count'] - bufferP3[6].data['unit-count']) + (bufferP4[0].data['unit-count'] - bufferP4[6].data['unit-count'])) * 2)
+    totalDelta = totalInjection - totalConsumption
+
+    document.getElementById('p2headcount').innerHTML = p2headcount
+    document.getElementById('p3headcount').innerHTML = p3headcount
+    document.getElementById('p4headcount').innerHTML = p4headcount
+    document.getElementById('p2rates').innerHTML = p2rate
+    document.getElementById('p3rates').innerHTML = p3rate
+    document.getElementById('p4rates').innerHTML = p4rate
+    document.getElementById('p2consumption').innerHTML = p2consumption.toLocaleString()
+    document.getElementById('p3consumption').innerHTML = p3consumption.toLocaleString()
+    document.getElementById('p4consumption').innerHTML = p4consumption.toLocaleString()
+    document.getElementById('p2bufferplus').innerHTML = p2bufferplus
+    document.getElementById('p3bufferplus').innerHTML = p3bufferplus
+    document.getElementById('p4bufferplus').innerHTML = p4bufferplus
+    document.getElementById('p2bufferminus').innerHTML = p2bufferminus
+    document.getElementById('p3bufferminus').innerHTML = p3bufferminus
+    document.getElementById('p4bufferminus').innerHTML = p4bufferminus
+    document.getElementById('p2buffer').innerHTML = p2buffer
+    document.getElementById('p3buffer').innerHTML = p3buffer
+    document.getElementById('p4buffer').innerHTML = p4buffer
+    document.getElementById('p2delta').innerHTML = p2delta
+    document.getElementById('p3delta').innerHTML = p3delta
+    document.getElementById('p4delta').innerHTML = p4delta
+    document.getElementById('p2Aheadcount').innerHTML = p2headcountA
+    document.getElementById('p2Bheadcount').innerHTML = p2headcountB
+    document.getElementById('p3Aheadcount').innerHTML = p3headcountA
+    document.getElementById('p3Bheadcount').innerHTML = p3headcountB
+    document.getElementById('p4Aheadcount').innerHTML = p4headcountA
+    document.getElementById('p4Bheadcount').innerHTML = p4headcountB
+    document.getElementById('p2Arates').innerHTML = p2ratesA
+    document.getElementById('p2Brates').innerHTML = p2ratesB
+    document.getElementById('p3Arates').innerHTML = p3ratesA
+    document.getElementById('p3Brates').innerHTML = p3ratesB
+    document.getElementById('p4Arates').innerHTML = p4ratesA
+    document.getElementById('p4Brates').innerHTML = p4ratesB
+    document.getElementById('p2Aproductmix').innerHTML = p2prodmixA + "%"
+    document.getElementById('p2Bproductmix').innerHTML = p2prodmixB + "%"
+    document.getElementById('p3Aproductmix').innerHTML = p3prodmixA + "%"
+    document.getElementById('p3Bproductmix').innerHTML = p3prodmixB + "%"
+    document.getElementById('p4Aproductmix').innerHTML = p4prodmixA + "%"
+    document.getElementById('p4Bproductmix').innerHTML = p4prodmixB + "%"
+    document.getElementById('p2Abinfullness').innerHTML = p2fullnessA + "%"
+    document.getElementById('p2Bbinfullness').innerHTML = p2fullnessB + "%"
+    document.getElementById('p3Abinfullness').innerHTML = p3fullnessA + "%"
+    document.getElementById('p3Bbinfullness').innerHTML = p3fullnessB + "%"
+    document.getElementById('p4Abinfullness').innerHTML = p4fullnessA + "%"
+    document.getElementById('p4Bbinfullness').innerHTML = p4fullnessB + "%"
+    document.getElementById('total-consumption').innerHTML = totalConsumption.toLocaleString()
+    document.getElementById('total-buffer').innerHTML = totalBuffer.toLocaleString()
+    document.getElementById('buffer-in-hours').innerHTML = bufferInHours
+    document.getElementById('total-injection').innerHTML = totalInjection.toLocaleString()
+    document.getElementById('total-delta').innerHTML = totalDelta.toLocaleString()
+
 
         highlightBufferAtRisk({p2buffer: bufferP2[0].data['unit-count'], p3buffer: bufferP3[0].data['unit-count'], p4buffer: bufferP4[0].data['unit-count'], p2bufferPlus: Math.round((p2headcount * p2rate * bufferExpInHours) + (p2headcount * p2rate * bufferExpInHours) * 20 / 100), p3bufferPlus: Math.round((p3headcount * p3rate * bufferExpInHours) + (p3headcount * p3rate * bufferExpInHours) * 20 / 100), p4bufferPlus: Math.round((p4headcount * p4rate * bufferExpInHours) + (p4headcount * p4rate * bufferExpInHours) * 20 / 100), p2bufferMinus: Math.round((p2headcount * p2rate * bufferExpInHours) - (p2headcount * p2rate * bufferExpInHours) * 20 / 100), p3bufferMinus: Math.round((p3headcount * p3rate * bufferExpInHours) - (p3headcount * p3rate * bufferExpInHours) * 20 / 100), p4bufferMinus: Math.round((p4headcount * p4rate * bufferExpInHours) - (p4headcount * p4rate * bufferExpInHours) * 20 / 100)})
-    }, 120000)
+    }, 10000)
 }
 
 //add style for metrics at risk
 function highlightBufferAtRisk({p2buffer, p3buffer, p4buffer, p2bufferPlus, p3bufferPlus, p4bufferPlus, p2bufferMinus, p3bufferMinus, p4bufferMinus}) {
     if (p2buffer > p2bufferPlus) {
-        currentBufferP2.style.backgroundColor = 'yellow'
+        document.getElementById('p2buffer').style.backgroundColor = '#ffff99'
+        document.getElementById('p2delta').style.backgroundColor = '#ffff99'
     } else if (p2buffer < p2bufferMinus) {
-        currentBufferP2.style.backgroundColor = 'red'
+        document.getElementById('p2buffer').style.backgroundColor = '#ff8566'
+        document.getElementById('p2delta').style.backgroundColor = '#ff8566'
     } else {
-        currentBufferP2.style.backgroundColor = 'green'
+        document.getElementById('p2buffer').style.backgroundColor = '#b3ffb3'
+        document.getElementById('p2delta').style.backgroundColor = '#b3ffb3'
     }
     if (p3buffer > p3bufferPlus) {
-        currentBufferP3.style.backgroundColor = 'yellow'
+        document.getElementById('p3buffer').style.backgroundColor = '#ffff99'
+        document.getElementById('p3delta').style.backgroundColor = '#ffff99'
     } else if (p3buffer < p3bufferMinus) {
-        currentBufferP3.style.backgroundColor = 'red'
+        document.getElementById('p3buffer').style.backgroundColor = '#ff8566'
+        document.getElementById('p3delta').style.backgroundColor = '#ff8566'
     } else {
-        currentBufferP3.style.backgroundColor = 'green'
+        document.getElementById('p3buffer').style.backgroundColor = '#b3ffb3'
+        document.getElementById('p3delta').style.backgroundColor = '#b3ffb3'
     }
     if (p4buffer > p4bufferPlus) {
-        currentBufferP4.style.backgroundColor = 'yellow'
+        document.getElementById('p4buffer').style.backgroundColor = '#ffff99'
+        document.getElementById('p4delta').style.backgroundColor = '#ffff99'
     } else if (p4buffer < p4bufferMinus) {
-        currentBufferP4.style.backgroundColor = 'red'
+        document.getElementById('p4buffer').style.backgroundColor = '#ff8566'
+        document.getElementById('p4delta').style.backgroundColor = '#ff8566'
     } else {
-        currentBufferP4.style.backgroundColor = 'green'
+        document.getElementById('p4buffer').style.backgroundColor = '#b3ffb3'
+        document.getElementById('p4delta').style.backgroundColor = '#b3ffb3'
     }
 }
