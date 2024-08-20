@@ -17,6 +17,7 @@
     //set shift and current time
 let currentShift = ''
 const bufferExpInHours = 2.5
+const unitsPerTote = 11
 let time = ''
 let hour = ''
 let minutes = ''
@@ -261,6 +262,23 @@ async function getBinFullness() {
     return response
   }
 
+//get current bin fullness per bin size
+async function getBinFullnessBinSize() {
+    const url = 'https://roboscout.amazon.com/view_plot_data/?sites=(LCY2)&mom_ids=1924&osm_ids=1595&oxm_ids=2148&ofm_ids=&instance_id=0&object_id=21284&BrowserTZ=Europe%2FLondon&app_name=RoboScout'
+    const response = await new Promise((resolve, reject) => {
+      GM.xmlHttpRequest({
+        method: "GET",
+        responseType: "json",
+        url: url,
+
+        onload: (response) => {
+          resolve(response.response.data);
+        },
+      });
+    });
+    return response
+  }
+
 //get PPR data
 async function getPPRdataETI() {
     const startTime = new Date(time - 7200000)
@@ -299,6 +317,23 @@ async function getPPRdataETI() {
 //get assigned product mix data
 async function getAssignedProductMix() {
     const url = 'https://monitorportal.amazon.com/mws/data?Action=GetGraph&Version=2007-07-07&SchemaName1=Search&Pattern1=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&Period1=OneHour&Stat1=sum&SchemaName2=Search&Pattern2=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName3=Search&Pattern3=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName4=Search&Pattern4=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName5=Search&Pattern5=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName6=Search&Pattern6=servicename%3D%24KivaStowWorkPlannerService%24+KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+&SchemaName7=Search&Pattern7=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName8=Search&Pattern8=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName9=Search&Pattern9=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName10=Search&Pattern10=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName11=Search&Pattern11=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName12=Search&Pattern12=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaA04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName13=Search&Pattern13=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName14=Search&Pattern14=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB02+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName15=Search&Pattern15=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName16=Search&Pattern16=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB03+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName17=Search&Pattern17=servicename%3D%24KivaStowWorkPlannerService%24+6-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&SchemaName18=Search&Pattern18=servicename%3D%24KivaStowWorkPlannerService%24+9-KIVA-DEEP.qty+station+AMZN%2FLCY2%2FpaKivaB04+marketplace%3D%24prod.EUFulfillment%24+methodname%3D%24CreatePlan%24+schemaname%3DService+&HeightInPixels=773&WidthInPixels=1718&GraphTitle=Product+mix+assigned+per+floor&LegendPlacement=right&DecoratePoints=true&TZ=Europe%2FLondon%40TZ%3A+London&ShowLegendErrors=false&LabelLeft=Quantity&StartTime1=-PT2H&EndTime1=-PT0H&FunctionExpression1=SUM%28S7%2CS8%29%2FSUM%28S1%29&FunctionLabel1=A02+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference1=left&FunctionExpression2=SUM%28S9%2CS10%29%2FSUM%28S2%29&FunctionLabel2=A03+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference2=left&FunctionExpression3=SUM%28S11%2CS12%29%2FSUM%28S3%29&FunctionLabel3=A04+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference3=left&FunctionExpression4=SUM%28S13%2CS14%29%2FSUM%28S4%29&FunctionLabel4=B02+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference4=left&FunctionExpression5=SUM%28S15%2CS16%29%2FSUM%28S5%29&FunctionLabel5=B03+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference5=left&FunctionExpression6=SUM%28S17%2CS18%29%2FSUM%28S6%29&FunctionLabel6=B04+%5Bavg%3A+%7Bavg%7D%5D&FunctionYAxisPreference6=left'
+    const response = await new Promise((resolve, reject) => {
+      GM.xmlHttpRequest({
+        method: "GET",
+        responseType: "json",
+        url: url,
+
+        onload: (response) => {
+          resolve(response.responseText);
+        },
+      });
+    });
+    return response
+  }
+
+//get injection
+async function getInjection() {
+    const url = 'https://monitorportal.amazon.com/mws/data?Action=GetGraph&Version=2007-07-07&SchemaName1=Service&DataSet1=Prod&Marketplace1=LCY2-ReceiveRouterController&HostGroup1=ALL&Host1=ALL&ServiceName1=WarehouseControlService&MethodName1=SortationOrchestrator.divert&Client1=ALL&MetricClass1=NONE&Instance1=NONE&Metric1=intermediateRequestedDivertId-RC0101&Period1=FiveMinute&Stat1=sum&Label1=intermediateRequestedDivertId-RC0101&SchemaName2=Service&Metric2=intermediateRequestedDivertId-RC0103&Label2=intermediateRequestedDivertId-RC0103&SchemaName3=Service&Metric3=intermediateRequestedDivertId-RC0102&Label3=intermediateRequestedDivertId-RC0102&HeightInPixels=773&WidthInPixels=1718&GraphTitle=Receive Router Recirc last 12 hours&DecoratePoints=true&TZ=Europe/London@TZ: London&StartTime1=-PT12H&EndTime1=-PT0M'
     const response = await new Promise((resolve, reject) => {
       GM.xmlHttpRequest({
         method: "GET",
@@ -382,6 +417,44 @@ let totalBuffer = ''
 let bufferInHours = ''
 let totalInjection = ''
 let totalDelta = ''
+let bufferValues = [];
+let labels = []
+let bufferValuesPlus = []
+let bufferValuesMinus = []
+let mainChart = ''
+let p2injection = ''
+let p3injection = ''
+let p4injection = ''
+let p2fullness6A = ''
+let p2fullness9A = ''
+let p2fullness11A = ''
+let p2fullness14A = ''
+let p2fullness18A = ''
+let p2fullness6B = ''
+let p2fullness9B = ''
+let p2fullness11B = ''
+let p2fullness14B = ''
+let p2fullness18B = ''
+let p3fullness6A = ''
+let p3fullness9A = ''
+let p3fullness11A = ''
+let p3fullness14A = ''
+let p3fullness18A = ''
+let p3fullness6B = ''
+let p3fullness9B = ''
+let p3fullness11B = ''
+let p3fullness14B = ''
+let p3fullness18B = ''
+let p4fullness6A = ''
+let p4fullness9A = ''
+let p4fullness11A = ''
+let p4fullness14A = ''
+let p4fullness18A = ''
+let p4fullness6B = ''
+let p4fullness9B = ''
+let p4fullness11B = ''
+let p4fullness14B = ''
+let p4fullness18B = ''
 ///////////////////
 //////////////////
 
@@ -394,6 +467,9 @@ flav.href = 'https://m.media-amazon.com/images/I/51iG0M0wqtL._AC_UF894,1000_QL80
 
 //create main window
 document.getElementsByTagName('body')[0].style.fontFamily = 'Verdana, sans-serif'
+document.getElementsByTagName('body')[0].style.position = 'relative'
+document.getElementsByTagName('body')[0].style.margin = '0'
+document.getElementsByTagName('body')[0].style.padding = '0'
 document.getElementsByTagName('p')[0].style.display = 'none'
 document.getElementsByTagName('h1')[0].style.display = 'none'
 document.getElementsByTagName('body')[0].style.backgroundColor = '#FAFAFA'
@@ -444,6 +520,8 @@ async function createTable() {
     let assignedProductMixRequest = await getAssignedProductMix()
     let binFullness = await getBinFullness()
     let unitsStowed = await getUnitsStowed()
+    let injectionData = await getInjection()
+    let fullnessPerBinSize = await getBinFullnessBinSize()
 
     //do calculations
     p2headcount = Number(currentHeadcount[7].yValue) + Number(currentHeadcount[58].yValue)
@@ -451,7 +529,7 @@ async function createTable() {
     p4headcount = Number(currentHeadcount[41].yValue) + Number(currentHeadcount[92].yValue)
     p2rate = Math.round(((Math.round(stowRatesRaw[1].yValue) * Math.round(workedHours[1].yValue)) + (Math.round(stowRatesRaw[7].yValue) * Math.round(workedHours[7].yValue))) / (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)))
     p3rate = Math.round(((Math.round(stowRatesRaw[3].yValue) * Math.round(workedHours[3].yValue)) + (Math.round(stowRatesRaw[9].yValue) * Math.round(workedHours[9].yValue))) / (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)))
-    p4rate = Math.round(((Math.round(stowRatesRaw[5].yValue) * Math.round(workedHours[5].yValue)) + (Math.round(stowRatesRaw[11].yValue) * Math.round(workedHours[11].yValue))) / (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))
+    p4rate = Math.round(((Math.round(stowRatesRaw[5].yValue) * Math.round(workedHours[5].yValue)) + ((Math.round(stowRatesRaw[11].yValue)) * Math.round(workedHours[11].yValue))) / (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))
     p2consumption = p2headcount * p2rate
     p3consumption = p3headcount * p3rate
     p4consumption = p4headcount * p4rate
@@ -496,11 +574,50 @@ async function createTable() {
     p4fullnessA = Math.round(binFullness[5].yValue)
     p4fullnessB = Math.round(binFullness[11].yValue)
 
+    p2fullness6A = Math.round(fullnessPerBinSize[7].yValue)
+    p2fullness9A = Math.round(fullnessPerBinSize[9].yValue)
+    p2fullness11A = Math.round(fullnessPerBinSize[1].yValue)
+    p2fullness14A = Math.round(fullnessPerBinSize[3].yValue)
+    p2fullness18A = Math.round(fullnessPerBinSize[5].yValue)
+    p2fullness6B = Math.round(fullnessPerBinSize[37].yValue)
+    p2fullness9B = Math.round(fullnessPerBinSize[39].yValue)
+    p2fullness11B = Math.round(fullnessPerBinSize[31].yValue)
+    p2fullness14B = Math.round(fullnessPerBinSize[33].yValue)
+    p2fullness18B = Math.round(fullnessPerBinSize[35].yValue)
+    p3fullness6A = Math.round(fullnessPerBinSize[17].yValue)
+    p3fullness9A = Math.round(fullnessPerBinSize[19].yValue)
+    p3fullness11A = Math.round(fullnessPerBinSize[11].yValue)
+    p3fullness14A = Math.round(fullnessPerBinSize[13].yValue)
+    p3fullness18A = Math.round(fullnessPerBinSize[15].yValue)
+    p3fullness6B = Math.round(fullnessPerBinSize[47].yValue)
+    p3fullness9B = Math.round(fullnessPerBinSize[49].yValue)
+    p3fullness11B = Math.round(fullnessPerBinSize[41].yValue)
+    p3fullness14B = Math.round(fullnessPerBinSize[43].yValue)
+    p3fullness18B = Math.round(fullnessPerBinSize[45].yValue)
+    p4fullness6A = Math.round(fullnessPerBinSize[27].yValue)
+    p4fullness9A = Math.round(fullnessPerBinSize[29].yValue)
+    p4fullness11A = Math.round(fullnessPerBinSize[21].yValue)
+    p4fullness14A = Math.round(fullnessPerBinSize[23].yValue)
+    p4fullness18A = Math.round(fullnessPerBinSize[25].yValue)
+    p4fullness6B = Math.round(fullnessPerBinSize[57].yValue)
+    p4fullness9B = Math.round(fullnessPerBinSize[59].yValue)
+    p4fullness11B = Math.round(fullnessPerBinSize[51].yValue)
+    p4fullness14B = Math.round(fullnessPerBinSize[53].yValue)
+    p4fullness18B = Math.round(fullnessPerBinSize[55].yValue)
+
+    const injection = document.createElement('html')
+    injection.innerHTML = injectionData
+    p2injection = Math.round(injection.querySelectorAll('tr')[3].children[injection.querySelectorAll('tr')[3].children.length - 1].innerHTML) * 12 * unitsPerTote
+    p3injection = Math.round(injection.querySelectorAll('tr')[2].children[injection.querySelectorAll('tr')[2].children.length - 1].innerHTML) * 12 * unitsPerTote
+    p4injection = Math.round(injection.querySelectorAll('tr')[1].children[injection.querySelectorAll('tr')[1].children.length - 1].innerHTML) * 12 * unitsPerTote
+    totalInjection = (p2injection + p3injection + p4injection)
+
     totalConsumption = p2consumption + p3consumption + p4consumption
     totalBuffer = bufferP2[0].data['unit-count'] + bufferP3[0].data['unit-count'] + bufferP4[0].data['unit-count']
     bufferInHours = Math.round((totalBuffer / totalConsumption) * 10) / 10
-    totalInjection = totalConsumption + (((bufferP2[0].data['unit-count'] - bufferP2[6].data['unit-count']) + (bufferP3[0].data['unit-count'] - bufferP3[6].data['unit-count']) + (bufferP4[0].data['unit-count'] - bufferP4[6].data['unit-count'])) * 2)
+    //totalInjection = totalConsumption + (((bufferP2[0].data['unit-count'] - bufferP2[6].data['unit-count']) + (bufferP3[0].data['unit-count'] - bufferP3[6].data['unit-count']) + (bufferP4[0].data['unit-count'] - bufferP4[6].data['unit-count'])) * 2)
     totalDelta = totalInjection - totalConsumption
+
 
     //create main container
     loadingElement.style.display = 'none'
@@ -527,7 +644,39 @@ async function createTable() {
         tableHeaderElement.style.color = 'white'
 
     }
-    const metricsGeneral = [{metric: 'Headcount', id: 'headcount', p2: p2headcount, p3: p3headcount, p4: p4headcount}, {metric: 'Rates', id: 'rates', p2: p2rate, p3: p3rate, p4: p4rate}, {metric: 'Hourly Consumption', id: 'consumption', p2: p2consumption.toLocaleString(), p3: p3consumption.toLocaleString(), p4: p4consumption.toLocaleString()}]
+
+        //create totals table
+    const totalsTable = document.createElement('table')
+    container.appendChild(totalsTable)
+    totalsTable.style.width = '100%'
+    totalsTable.style.marginTop = '3em'
+    const totalsTableHeaders = ['Consumption', 'Total Buffer', 'Buffer In Hours', 'Hourly Injection', 'Total Delta' ]
+    for (let header of totalsTableHeaders) {
+        const tableHeaderElement = document.createElement('th')
+        totalsTable.appendChild(tableHeaderElement)
+        tableHeaderElement.innerHTML = header
+        tableHeaderElement.style.border = '1px solid #C1C1C1'
+        tableHeaderElement.style.borderCollapse = 'collapse'
+        tableHeaderElement.style.width = '20%'
+        tableHeaderElement.style.backgroundColor = '#C1C1C1'
+        tableHeaderElement.style.color = 'white'
+        tableHeaderElement.style.verticalAlign = 'middle'
+        tableHeaderElement.style.padding = '2px'
+    }
+    const totalsTableRow = document.createElement('tr')
+    totalsTable.appendChild(totalsTableRow)
+    totalsTableRow.innerHTML = `<td id="total-consumption" class="table-data">${totalConsumption.toLocaleString()}</td><td id="total-buffer" class="table-data">${totalBuffer.toLocaleString()}</td><td id="buffer-in-hours" class="table-data">${bufferInHours}</td><td id="total-injection" class="table-data">${totalInjection.toLocaleString()}</td><td id="total-delta" class="table-data">${totalDelta.toLocaleString()}</td>`
+
+    //container for grafs
+    const grafsContainer = document.createElement('div')
+    container.appendChild(grafsContainer)
+    grafsContainer.style.marginTop = '3em'
+    const mainGraf = document.createElement('canvas')
+    container.appendChild(mainGraf)
+    mainGraf.setAttribute('id', 'main-graf')
+
+
+    const metricsGeneral = [{metric: 'Headcount', id: 'headcount', p2: p2headcount, p3: p3headcount, p4: p4headcount}, {metric: 'Rates', id: 'rates', p2: p2rate, p3: p3rate, p4: p4rate}, {metric: 'Hourly Consumption', id: 'consumption', p2: p2consumption.toLocaleString(), p3: p3consumption.toLocaleString(), p4: p4consumption.toLocaleString()}, {metric: 'Injection', id: 'injection', p2: p2injection.toLocaleString(), p3: p3injection.toLocaleString(), p4: p4injection.toLocaleString()}]
     for (let metric of metricsGeneral) {
         const metricRow = document.createElement('tr')
         capacityTable.appendChild(metricRow)
@@ -578,35 +727,18 @@ async function createTable() {
     const otherMetrics = [{metric: 'Headcount', id: 'headcount', p2A: p2headcountA, p2B: p2headcountB, p3A: p3headcountA, p3B: p3headcountB, p4A: p4headcountA, p4B: p4headcountB},
                          {metric: 'Rates', id: 'rates', p2A: p2ratesA, p2B: p2ratesB, p3A: p3ratesA, p3B: p3ratesB, p4A: p4ratesA, p4B: p4ratesB},
                          {metric: 'Product Mix - Smalls', id: 'productmix', p2A:`${p2prodmixA}%`, p2B:`${p2prodmixB}%`, p3A: `${p3prodmixA}%`, p3B:`${p3prodmixB}%`, p4A:`${p4prodmixA}%`, p4B:`${p4prodmixB}%`},
-                         {metric: 'Bin Fullness', id: 'binfullness', p2A:`${p2fullnessA}%`, p2B:`${p2fullnessB}%`, p3A: `${p3fullnessA}%`, p3B:`${p3fullnessB}%`, p4A:`${p4fullnessA}%`, p4B:`${p4fullnessB}%`}]
+                         {metric: 'Bin Fullness', id: 'binfullness', p2A:`${p2fullnessA}%`, p2B:`${p2fullnessB}%`, p3A: `${p3fullnessA}%`, p3B:`${p3fullnessB}%`, p4A:`${p4fullnessA}%`, p4B:`${p4fullnessB}%`},
+                         {metric: 'Fullness 6"', id: 'fullness6', p2A:`${p2fullness6A}%`, p2B:`${p2fullness6B}%`, p3A: `${p3fullness6A}%`, p3B:`${p3fullness6B}%`, p4A:`${p4fullness6A}%`, p4B:`${p4fullness6B}%`},
+                         {metric: 'Fullness 9"', id: 'fullness9', p2A:`${p2fullness9A}%`, p2B:`${p2fullness9B}%`, p3A: `${p3fullness9A}%`, p3B:`${p3fullness9B}%`, p4A:`${p4fullness9A}%`, p4B:`${p4fullness9B}%`},
+                         {metric: 'Fullness 11"', id: 'fullness11', p2A:`${p2fullness11A}%`, p2B:`${p2fullness11B}%`, p3A: `${p3fullness11A}%`, p3B:`${p3fullness11B}%`, p4A:`${p4fullness11A}%`, p4B:`${p4fullness11B}%`},
+                         {metric: 'Fullness 14"', id: 'fullness14', p2A:`${p2fullness14A}%`, p2B:`${p2fullness14B}%`, p3A: `${p3fullness14A}%`, p3B:`${p3fullness14B}%`, p4A:`${p4fullness14A}%`, p4B:`${p4fullness14B}%`},
+                         {metric: 'Fullness 18.5"', id: 'fullness18', p2A:`${p2fullness18A}%`, p2B:`${p2fullness18B}%`, p3A: `${p3fullness18A}%`, p3B:`${p3fullness18B}%`, p4A:`${p4fullness18A}%`, p4B:`${p4fullness18B}%`}]
     for (let metric of otherMetrics) {
         const metricRow = document.createElement('tr')
+        metricRow.setAttribute('id', metric.id)
         otherMetricsTable.appendChild(metricRow)
         metricRow.innerHTML = `<td colspan='2' class="metric">${metric.metric}</td><td id="p2A${metric.id}" class="table-data">${metric.p2A}</td><td id="p2B${metric.id}" class="table-data">${metric.p2B}</td><td id="p3A${metric.id}" class="table-data">${metric.p3A}</td><td id="p3B${metric.id}" class="table-data">${metric.p3B}</td><td id="p4A${metric.id}" class="table-data">${metric.p4A}</td><td id="p4B${metric.id}" class="table-data">${metric.p4B}</td>`
     }
-
-    //create totals table
-    const totalsTable = document.createElement('table')
-    container.appendChild(totalsTable)
-    totalsTable.style.width = '100%'
-    totalsTable.style.marginTop = '3em'
-    const totalsTableHeaders = ['Consumption', 'Total Buffer', 'Buffer In Hours', 'Hourly Injection', 'Total Delta' ]
-    for (let header of totalsTableHeaders) {
-        const tableHeaderElement = document.createElement('th')
-        totalsTable.appendChild(tableHeaderElement)
-        tableHeaderElement.innerHTML = header
-        tableHeaderElement.style.border = '1px solid #C1C1C1'
-        tableHeaderElement.style.borderCollapse = 'collapse'
-        tableHeaderElement.style.width = '20%'
-        tableHeaderElement.style.backgroundColor = '#C1C1C1'
-        tableHeaderElement.style.color = 'white'
-        tableHeaderElement.style.verticalAlign = 'middle'
-        tableHeaderElement.style.padding = '2px'
-    }
-    const totalsTableRow = document.createElement('tr')
-    totalsTable.appendChild(totalsTableRow)
-    totalsTableRow.innerHTML = `<td id="total-consumption" class="table-data">${totalConsumption.toLocaleString()}</td><td id="total-buffer" class="table-data">${totalBuffer.toLocaleString()}</td><td id="buffer-in-hours" class="table-data">${bufferInHours}</td><td id="total-injection" class="table-data">${totalInjection.toLocaleString()}</td><td id="total-delta" class="table-data">${totalDelta.toLocaleString()}</td>`
-
 
     const metricsClass = document.getElementsByClassName('metric')
     for (let metric of metricsClass) {
@@ -622,43 +754,76 @@ async function createTable() {
         dataCell.style.textAlign = 'right'
         dataCell.style.color = '#404040'
     }
+    document.getElementById('binfullness').style.backgroundColor = 'rgb(210, 210, 210)'
+    document.getElementById('fullness6').style.backgroundColor = 'rgb(210, 210, 210)'
+    document.getElementById('fullness9').style.backgroundColor = 'rgb(210, 210, 210)'
+    document.getElementById('fullness11').style.backgroundColor = 'rgb(210, 210, 210)'
+    document.getElementById('fullness14').style.backgroundColor = 'rgb(210, 210, 210)'
+    document.getElementById('fullness18').style.backgroundColor = 'rgb(210, 210, 210)'
 
-    const grafsContainer = document.createElement('div')
-    container.appendChild(grafsContainer)
-    grafsContainer.style.marginTop = '3em'
-    const mainGraf = document.createElement('canvas')
-    container.appendChild(mainGraf)
-    mainGraf.setAttribute('id', 'main-graf')
+    
 
-    let bufferValues = [
-
-    ];
-    let labels = [
-    ]
-
+    //main graf
     for (let i = 0; i <= 100; i++) {
         let unitCount = bufferP2[i].data['unit-count'] + bufferP3[i].data['unit-count'] + bufferP4[i].data['unit-count']
         let date = new Date(bufferP2[i].timestamp).toLocaleTimeString()
+        let bufferValuesPlusData = Math.round(((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) + (((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) * 20 / 100))
+        let bufferValuesMinusData = Math.round(((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) - (((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) * 20 / 100))
         labels.unshift(date)
         bufferValues.unshift(unitCount)
+        bufferValuesPlus.unshift(bufferValuesPlusData)
+        bufferValuesMinus.unshift(bufferValuesMinusData)
     }
 
+    //create a footer
+    const footer = document.createElement('footer')
+    document.getElementsByTagName('body')[0].appendChild(footer)
+    footer.style.width = '100%'
+    footer.style.backgroundColor = 'rgb(193, 193, 193)'
+    footer.style.position = 'absolute'
+    footer.style.textAlign = 'center'
+    footer.style.fontStyle = 'italic'
+    footer.style.fontSize = '0.8em'
+    footer.style.padding = '5px 0px'
+    footer.innerHTML = 'Created by Lukasz Milcz - milcz@amazon.com'
 
-new Chart("main-graf", {
+
+mainChart = new Chart("main-graf", {
   type: 'line',
   data: {
    labels: labels,
     datasets: [{
-      pointRadius: 4,
+      pointRadius: 3,
+      label: "Actual Buffer",
       pointBackgroundColor: "rgb(0,0,255)",
+      borderColor: "rgb(0,0,255)",
+      backgroundColor:"rgba(0,0,255, 0)",
       data: bufferValues
+    }, {
+      pointRadius: 3,
+      label: "Buffer Maximum",
+      pointBackgroundColor: "rgb(255,170,0)",
+      borderColor: "rgb(255,170,0)",
+      backgroundColor:"rgba(0,255,0, 0)",
+      data: bufferValuesPlus
+    }, {
+      pointRadius: 3,
+      label: "Buffer Minimum",
+      pointBackgroundColor: "rgb(255,0,0)",
+      borderColor: "rgb(255,0,0)",
+      backgroundColor:"rgba(255,0,0, 0)",
+      data: bufferValuesMinus
     }]
   },
   options: {
-    legend: {display: false},
+    legend: {display: true},
+    title: {display: true, text: 'Stow Buffer', position: 'top', fontSize: 25},
     scales: {
-      yAxes: [{ticks: {min: 10000, max: 80000}}],
-    }
+      yAxes: [{ticks: {min: 0, max: 160000}}],
+    },
+    animations: {
+        tension: {duration: 2000}
+      }
   }
 });
 
@@ -670,6 +835,8 @@ new Chart("main-graf", {
 //keep refreshing data
 function refreshData() {
     setInterval(async function() {
+        setTimeAndShift()
+
         let stowRatesRaw = await getStowRate()
         let workedHours = await getWorkedHours()
         let currentHeadcount = await getCurrentHeadcount()
@@ -679,6 +846,8 @@ function refreshData() {
         let assignedProductMixRequest = await getAssignedProductMix()
         let binFullness = await getBinFullness()
         let unitsStowed = await getUnitsStowed()
+        let injectionData = await getInjection()
+        let fullnessPerBinSize = await getBinFullnessBinSize()
 
         p2headcount = Number(currentHeadcount[7].yValue) + Number(currentHeadcount[58].yValue)
     p3headcount = Number(currentHeadcount[24].yValue) + Number(currentHeadcount[75].yValue)
@@ -730,10 +899,48 @@ function refreshData() {
     p4fullnessA = Math.round(binFullness[5].yValue)
     p4fullnessB = Math.round(binFullness[11].yValue)
 
+    p2fullness6A = Math.round(fullnessPerBinSize[7].yValue)
+    p2fullness9A = Math.round(fullnessPerBinSize[9].yValue)
+    p2fullness11A = Math.round(fullnessPerBinSize[1].yValue)
+    p2fullness14A = Math.round(fullnessPerBinSize[3].yValue)
+    p2fullness18A = Math.round(fullnessPerBinSize[5].yValue)
+    p2fullness6B = Math.round(fullnessPerBinSize[37].yValue)
+    p2fullness9B = Math.round(fullnessPerBinSize[39].yValue)
+    p2fullness11B = Math.round(fullnessPerBinSize[31].yValue)
+    p2fullness14B = Math.round(fullnessPerBinSize[33].yValue)
+    p2fullness18B = Math.round(fullnessPerBinSize[35].yValue)
+    p3fullness6A = Math.round(fullnessPerBinSize[17].yValue)
+    p3fullness9A = Math.round(fullnessPerBinSize[19].yValue)
+    p3fullness11A = Math.round(fullnessPerBinSize[11].yValue)
+    p3fullness14A = Math.round(fullnessPerBinSize[13].yValue)
+    p3fullness18A = Math.round(fullnessPerBinSize[15].yValue)
+    p3fullness6B = Math.round(fullnessPerBinSize[47].yValue)
+    p3fullness9B = Math.round(fullnessPerBinSize[49].yValue)
+    p3fullness11B = Math.round(fullnessPerBinSize[41].yValue)
+    p3fullness14B = Math.round(fullnessPerBinSize[43].yValue)
+    p3fullness18B = Math.round(fullnessPerBinSize[45].yValue)
+    p4fullness6A = Math.round(fullnessPerBinSize[27].yValue)
+    p4fullness9A = Math.round(fullnessPerBinSize[29].yValue)
+    p4fullness11A = Math.round(fullnessPerBinSize[21].yValue)
+    p4fullness14A = Math.round(fullnessPerBinSize[23].yValue)
+    p4fullness18A = Math.round(fullnessPerBinSize[25].yValue)
+    p4fullness6B = Math.round(fullnessPerBinSize[57].yValue)
+    p4fullness9B = Math.round(fullnessPerBinSize[59].yValue)
+    p4fullness11B = Math.round(fullnessPerBinSize[51].yValue)
+    p4fullness14B = Math.round(fullnessPerBinSize[53].yValue)
+    p4fullness18B = Math.round(fullnessPerBinSize[55].yValue)
+
+    const injection = document.createElement('html')
+    injection.innerHTML = injectionData
+    p2injection = Math.round(injection.querySelectorAll('tr')[3].children[injection.querySelectorAll('tr')[3].children.length - 1].innerHTML) * 12 * unitsPerTote
+    p3injection = Math.round(injection.querySelectorAll('tr')[2].children[injection.querySelectorAll('tr')[2].children.length - 1].innerHTML) * 12 * unitsPerTote
+    p4injection = Math.round(injection.querySelectorAll('tr')[1].children[injection.querySelectorAll('tr')[1].children.length - 1].innerHTML) * 12 * unitsPerTote
+    totalInjection = (p2injection + p3injection + p4injection)
+
     totalConsumption = p2consumption + p3consumption + p4consumption
     totalBuffer = bufferP2[0].data['unit-count'] + bufferP3[0].data['unit-count'] + bufferP4[0].data['unit-count']
     bufferInHours = Math.round((totalBuffer / totalConsumption) * 10) / 10
-    totalInjection = totalConsumption + (((bufferP2[0].data['unit-count'] - bufferP2[6].data['unit-count']) + (bufferP3[0].data['unit-count'] - bufferP3[6].data['unit-count']) + (bufferP4[0].data['unit-count'] - bufferP4[6].data['unit-count'])) * 2)
+    //totalInjection = totalConsumption + (((bufferP2[0].data['unit-count'] - bufferP2[6].data['unit-count']) + (bufferP3[0].data['unit-count'] - bufferP3[6].data['unit-count']) + (bufferP4[0].data['unit-count'] - bufferP4[6].data['unit-count'])) * 2)
     totalDelta = totalInjection - totalConsumption
 
     document.getElementById('p2headcount').innerHTML = p2headcount
@@ -781,15 +988,68 @@ function refreshData() {
     document.getElementById('p3Bbinfullness').innerHTML = p3fullnessB + "%"
     document.getElementById('p4Abinfullness').innerHTML = p4fullnessA + "%"
     document.getElementById('p4Bbinfullness').innerHTML = p4fullnessB + "%"
+    document.getElementById('p2Afullness6').innerHTML = p2fullness6A + "%"
+    document.getElementById('p2Afullness9').innerHTML = p2fullness9A + "%"
+    document.getElementById('p2Afullness11').innerHTML = p2fullness11A + "%"
+    document.getElementById('p2Afullness14').innerHTML = p2fullness14A + "%"
+    document.getElementById('p2Afullness18').innerHTML = p2fullness18A + "%"
+    document.getElementById('p2Bfullness6').innerHTML = p2fullness6B + "%"
+    document.getElementById('p2Bfullness9').innerHTML = p2fullness9B + "%"
+    document.getElementById('p2Bfullness11').innerHTML = p2fullness11B + "%"
+    document.getElementById('p2Bfullness14').innerHTML = p2fullness14B + "%"
+    document.getElementById('p2Bfullness18').innerHTML = p2fullness18B + "%"
+    document.getElementById('p3Afullness6').innerHTML = p3fullness6A + "%"
+    document.getElementById('p3Afullness9').innerHTML = p3fullness9A + "%"
+    document.getElementById('p3Afullness11').innerHTML = p3fullness11A + "%"
+    document.getElementById('p3Afullness14').innerHTML = p3fullness14A + "%"
+    document.getElementById('p3Afullness18').innerHTML = p3fullness18A + "%"
+    document.getElementById('p3Bfullness6').innerHTML = p3fullness6B + "%"
+    document.getElementById('p3Bfullness9').innerHTML = p3fullness9B + "%"
+    document.getElementById('p3Bfullness11').innerHTML = p3fullness11B + "%"
+    document.getElementById('p3Bfullness14').innerHTML = p3fullness14B + "%"
+    document.getElementById('p3Bfullness18').innerHTML = p3fullness18B + "%"
+    document.getElementById('p4Afullness6').innerHTML = p4fullness6A + "%"
+    document.getElementById('p4Afullness9').innerHTML = p4fullness9A + "%"
+    document.getElementById('p4Afullness11').innerHTML = p4fullness11A + "%"
+    document.getElementById('p4Afullness14').innerHTML = p4fullness14A + "%"
+    document.getElementById('p4Afullness18').innerHTML = p4fullness18A + "%"
+    document.getElementById('p4Bfullness6').innerHTML = p4fullness6B + "%"
+    document.getElementById('p4Bfullness9').innerHTML = p4fullness9B + "%"
+    document.getElementById('p4Bfullness11').innerHTML = p4fullness11B + "%"
+    document.getElementById('p4Bfullness14').innerHTML = p2fullness14B + "%"
+    document.getElementById('p4Bfullness18').innerHTML = p2fullness18B + "%"
+    document.getElementById('p2injection').innerHTML = p2injection.toLocaleString()
+    document.getElementById('p3injection').innerHTML = p3injection.toLocaleString()
+    document.getElementById('p4injection').innerHTML = p4injection.toLocaleString()
     document.getElementById('total-consumption').innerHTML = totalConsumption.toLocaleString()
     document.getElementById('total-buffer').innerHTML = totalBuffer.toLocaleString()
     document.getElementById('buffer-in-hours').innerHTML = bufferInHours
     document.getElementById('total-injection').innerHTML = totalInjection.toLocaleString()
     document.getElementById('total-delta').innerHTML = totalDelta.toLocaleString()
 
+        //main graf
+    bufferValues = [];
+    labels = []
+    bufferValuesPlus = []
+    bufferValuesMinus = []
+    for (let i = 0; i <= 100; i++) {
+        let unitCount = bufferP2[i].data['unit-count'] + bufferP3[i].data['unit-count'] + bufferP4[i].data['unit-count']
+        let date = new Date(bufferP2[i].timestamp).toLocaleTimeString()
+        let bufferValuesPlusData = Math.round(((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) + (((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) * 20 / 100))
+        let bufferValuesMinusData = Math.round(((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) - (((bufferP2[i].data['employee-count'] + bufferP3[i].data['employee-count'] + bufferP4[i].data['employee-count']) * (((p2rate * (Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue))) + (p3rate * (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue))) + (p4rate * (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) / ((Math.round(workedHours[1].yValue) + Math.round(workedHours[7].yValue)) + (Math.round(workedHours[3].yValue) + Math.round(workedHours[9].yValue)) + (Math.round(workedHours[5].yValue) + Math.round(workedHours[11].yValue)))) * bufferExpInHours) * 20 / 100))
+        labels.unshift(date)
+        bufferValues.unshift(unitCount)
+        bufferValuesPlus.unshift(bufferValuesPlusData)
+        bufferValuesMinus.unshift(bufferValuesMinusData)
+    }
+        mainChart.data.labels = labels
+        mainChart.data.datasets[0].data = bufferValues
+        mainChart.data.datasets[1].data = bufferValuesPlus
+        mainChart.data.datasets[2].data = bufferValuesMinus
+        mainChart.update()
 
         highlightBufferAtRisk({p2buffer: bufferP2[0].data['unit-count'], p3buffer: bufferP3[0].data['unit-count'], p4buffer: bufferP4[0].data['unit-count'], p2bufferPlus: Math.round((p2headcount * p2rate * bufferExpInHours) + (p2headcount * p2rate * bufferExpInHours) * 20 / 100), p3bufferPlus: Math.round((p3headcount * p3rate * bufferExpInHours) + (p3headcount * p3rate * bufferExpInHours) * 20 / 100), p4bufferPlus: Math.round((p4headcount * p4rate * bufferExpInHours) + (p4headcount * p4rate * bufferExpInHours) * 20 / 100), p2bufferMinus: Math.round((p2headcount * p2rate * bufferExpInHours) - (p2headcount * p2rate * bufferExpInHours) * 20 / 100), p3bufferMinus: Math.round((p3headcount * p3rate * bufferExpInHours) - (p3headcount * p3rate * bufferExpInHours) * 20 / 100), p4bufferMinus: Math.round((p4headcount * p4rate * bufferExpInHours) - (p4headcount * p4rate * bufferExpInHours) * 20 / 100)})
-    }, 10000)
+    }, 120000)
 }
 
 //add style for metrics at risk
